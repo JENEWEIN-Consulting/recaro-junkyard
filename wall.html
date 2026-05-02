@@ -577,7 +577,7 @@ function getGviewUrl(url) {
 }
 
 function renderGrid() {
-  const filtered = activeFilter === 'All' ? allEntries : allEntries.filter(e => e.site === activeFilter);
+  const filtered = activeFilter === 'All' ? [...allEntries].reverse() : allEntries.filter(e => e.site === activeFilter).reverse();
 
   if (filtered.length === 0) {
     showEmpty();
@@ -588,9 +588,9 @@ function renderGrid() {
     const ftype = getFileType(entry.fileUrl);
     let previewHtml;
     if (ftype === 'image') {
-      previewHtml = `<img class="card-preview" src="${entry.fileUrl}" alt="Stop List" onerror="this.outerHTML='<div class=card-preview-placeholder><div class=card-preview-icon>📎</div><div class=card-preview-label>File</div></div>'">`;
+      previewHtml = `<img class="card-preview" src="${entry.fileUrl}" alt="Stop List" loading="lazy" onerror="this.outerHTML='<div class=card-preview-placeholder><div class=card-preview-icon>📎</div><div class=card-preview-label>File</div></div>'">`;
     } else if (ftype === 'pdf' || ftype === 'pptx') {
-      previewHtml = `<iframe class="card-preview" src="${getGviewUrl(entry.fileUrl)}" style="pointer-events:none;" scrolling="no"></iframe>`;
+      previewHtml = `<iframe class="card-preview" data-src="${getGviewUrl(entry.fileUrl)}" style="pointer-events:none;" scrolling="no"></iframe>`;
     } else {
       previewHtml = `<div class="card-preview-placeholder"><div class="card-preview-icon">📎</div><div class="card-preview-label">File</div><div class="card-preview-cta">Click to view</div></div>`;
     }
@@ -607,6 +607,7 @@ function renderGrid() {
   }).join('') + '</div>';
 
   document.getElementById('content').innerHTML = html;
+  lazyLoadIframes();
 }
 
 function showEmpty() {
@@ -650,6 +651,26 @@ document.getElementById('modal').addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeModal();
 });
+
+// Lazy load iframes – only load Google Docs Viewer when card scrolls into view
+const iframeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const iframe = e.target;
+      if (iframe.dataset.src) {
+        iframe.src = iframe.dataset.src;
+        delete iframe.dataset.src;
+      }
+      iframeObserver.unobserve(iframe);
+    }
+  });
+}, { rootMargin: '200px' });
+
+function lazyLoadIframes() {
+  document.querySelectorAll('iframe[data-src]').forEach(iframe => {
+    iframeObserver.observe(iframe);
+  });
+}
 
 // Load data
 fetchData();
