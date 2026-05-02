@@ -530,7 +530,7 @@ function parseCSV(text) {
 
 function getFileType(url) {
   const lower = url.toLowerCase();
-  if (lower.includes('.jpg') || lower.includes('.jpeg') || lower.includes('.png') || lower.includes('.webp')) return 'image';
+  if (lower.includes('.jpg') || lower.includes('.jpeg') || lower.includes('.png') || lower.includes('.webp') || lower.includes('.gif') || lower.includes('.bmp')) return 'image';
   if (lower.includes('.pdf')) return 'pdf';
   if (lower.includes('.pptx') || lower.includes('.ppt')) return 'pptx';
   return 'file';
