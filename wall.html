@@ -572,6 +572,10 @@ function setFilter(site) {
   renderGrid();
 }
 
+function getGviewUrl(url) {
+  return 'https://docs.google.com/gview?url=' + encodeURIComponent(url) + '&embedded=true';
+}
+
 function renderGrid() {
   const filtered = activeFilter === 'All' ? allEntries : allEntries.filter(e => e.site === activeFilter);
 
@@ -585,10 +589,8 @@ function renderGrid() {
     let previewHtml;
     if (ftype === 'image') {
       previewHtml = `<img class="card-preview" src="${entry.fileUrl}" alt="Stop List" onerror="this.outerHTML='<div class=card-preview-placeholder><div class=card-preview-icon>📎</div><div class=card-preview-label>File</div></div>'">`;
-    } else if (ftype === 'pdf') {
-      previewHtml = `<div class="card-preview-placeholder"><div class="card-preview-icon">📄</div><div class="card-preview-label">PDF Document</div><div class="card-preview-cta">Click to view</div></div>`;
-    } else if (ftype === 'pptx') {
-      previewHtml = `<div class="card-preview-placeholder"><div class="card-preview-icon">📊</div><div class="card-preview-label">PowerPoint</div><div class="card-preview-cta">Click to view</div></div>`;
+    } else if (ftype === 'pdf' || ftype === 'pptx') {
+      previewHtml = `<iframe class="card-preview" src="${getGviewUrl(entry.fileUrl)}" style="pointer-events:none;" scrolling="no"></iframe>`;
     } else {
       previewHtml = `<div class="card-preview-placeholder"><div class="card-preview-icon">📎</div><div class="card-preview-label">File</div><div class="card-preview-cta">Click to view</div></div>`;
     }
@@ -629,8 +631,8 @@ function openModal(idx) {
 
   if (ftype === 'image') {
     preview.innerHTML = `<img class="modal-preview" src="${entry.fileUrl}" alt="Stop List" onerror="this.style.display='none'">`;
-  } else if (ftype === 'pdf') {
-    preview.innerHTML = `<iframe class="modal-preview" src="${entry.fileUrl}" style="height:400px;border:none;"></iframe>`;
+  } else if (ftype === 'pdf' || ftype === 'pptx') {
+    preview.innerHTML = `<iframe class="modal-preview" src="${getGviewUrl(entry.fileUrl)}" style="height:500px;border:none;border-radius:8px;"></iframe>`;
   } else {
     preview.innerHTML = `<div style="text-align:center;padding:40px;color:#6b82b8;font-family:'Special Elite',monospace;">Click "Open file" to view the document</div>`;
   }
